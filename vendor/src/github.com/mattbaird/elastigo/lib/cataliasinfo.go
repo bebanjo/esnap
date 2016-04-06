@@ -25,8 +25,7 @@ func NewCatAliasInfo(aliasLine string) (catAlias *CatAliasInfo, err error) {
 func (c *Conn) GetCatAliasInfo(pattern string) (catAliases []CatAliasInfo) {
 	catAliases = make([]CatAliasInfo, 0)
 	//force it to only show the fields we know about
-	args := map[string]interface{}{"bytes": "b", "h": "name,alias"}
-	aliases, err := c.DoCommand("GET", "/_cat/aliases/"+pattern, args, nil)
+	aliases, err := c.DoCommand("GET", "/_cat/aliases/"+pattern, nil, nil)
 	if err == nil {
 		aliasLines := strings.Split(string(aliases[:]), "\n")
 		for _, alias := range aliasLines {
