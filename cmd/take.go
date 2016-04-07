@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	es "github.com/bebanjo/esnap/_vendor/src/github.com/mattbaird/elastigo/lib"
+	es "github.com/bebanjo/esnap/vendor/src/github.com/mattbaird/elastigo/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ var takeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
 		var date = time.Now().Format("20060102150405")
-		var state string
+		var state = "STARTING"
 		var query interface{}
 
 		if *destination == "" {
@@ -53,6 +53,7 @@ var takeCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		fmt.Println("Waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
 			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
 			if err != nil {
