@@ -45,5 +45,4 @@ func TestIndicesToRemove(t *testing.T) {
 	if !reflect.DeepEqual(indicesToRemove, expectedIndicesToRemove) {
 		t.Errorf("got %v, expected %v", indicesToRemove, expectedIndicesToRemove)
 	}
-
 }

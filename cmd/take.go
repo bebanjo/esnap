@@ -21,11 +21,13 @@ var takeCmd = &cobra.Command{
 		var state = "STARTING"
 		var query interface{}
 
+		// A destination is required
 		if *destination == "" {
 			fmt.Println("Destination required")
 			os.Exit(1)
 		}
 
+		// Create repository if --create-repository flag is enabled
 		if *createRepository {
 			fmt.Println("Creating repository", destination)
 			repositoryType := map[string]interface{}{"type": "s3"}
@@ -41,18 +43,21 @@ var takeCmd = &cobra.Command{
 			}
 		}
 
+		// Select only destination-related indices if --all flag is not used
 		if !*allIndices {
 			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destination))
 			indicesNamesString := strings.Join(indicesNames(indicesInfo), ",")
 			query = map[string]interface{}{"indices": indicesNamesString}
 		}
 
+		// Take Snapshot
 		_, err := conn.TakeSnapshot(*destination, date, nil, query)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
+		// Poll for Snapshot status until it is done
 		fmt.Println("Waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
 			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
