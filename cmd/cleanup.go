@@ -20,7 +20,7 @@ var cleanupCmd = &cobra.Command{
 
 		indicesToRemove := indicesToRemove(indicesInfo, aliasesInfo)
 		for _, indexToRemove := range indicesToRemove {
-			fmt.Printf("Deleting index %s... ", indexToRemove)
+			fmt.Printf("deleting index %s... ", indexToRemove)
 			_, err := conn.DeleteIndex(indexToRemove)
 			if err != nil {
 				fmt.Printf("ERROR: %v\n", err)

@@ -23,13 +23,13 @@ var takeCmd = &cobra.Command{
 
 		// A destinationTake is required
 		if *destinationTake == "" {
-			fmt.Println("Destination required")
+			fmt.Println("destination required")
 			os.Exit(1)
 		}
 
 		// Create repository if --create-repository flag is enabled
 		if *createRepository {
-			fmt.Println("Creating repository", destinationTake)
+			fmt.Println("creating repository", destinationTake)
 			repositoryType := map[string]interface{}{"type": "s3"}
 			settings := map[string]interface{}{
 				"bucket":                 fmt.Sprintf("bebanjo-elasticsearch-snapshots-%s", *destinationTake),
@@ -58,7 +58,7 @@ var takeCmd = &cobra.Command{
 		}
 
 		// Poll for Snapshot status until it is done
-		fmt.Println("Waiting for snapshot", date, "to be ready...", state)
+		fmt.Println("waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
 			snapshots, err := conn.GetSnapshotByName(*destinationTake, date, nil)
 			if err != nil {
@@ -71,7 +71,7 @@ var takeCmd = &cobra.Command{
 			}
 
 			state = snapshots.Snapshots[0].State
-			fmt.Println("Waiting for snapshot", date, "to be ready...", state)
+			fmt.Println("waiting for snapshot", date, "to be ready...", state)
 			time.Sleep(5 * time.Second)
 		}
 
