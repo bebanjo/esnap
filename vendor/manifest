@@ -1,0 +1,147 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/BurntSushi/toml",
+			"repository": "https://github.com/BurntSushi/toml",
+			"revision": "bbd5bb678321a0d6e58f1099321dfa73391c1b6f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/araddon/gou",
+			"repository": "https://github.com/araddon/gou",
+			"revision": "c4d51044125da629d6f2aa594f25b45c451a7d2a",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/bebanjo/elastigo",
+			"repository": "https://github.com/bebanjo/elastigo",
+			"revision": "4d64addacc9926755f08603e24f62704da45c216",
+			"branch": "alias-cat-info",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/bitly/go-hostpool",
+			"repository": "https://github.com/bitly/go-hostpool",
+			"revision": "d0e59c22a56e8dadfed24f74f452cea5a52722d2",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/cpuguy83/go-md2man/md2man",
+			"repository": "https://github.com/cpuguy83/go-md2man",
+			"revision": "2724a9c9051aa62e9cca11304e7dd518e9e41599",
+			"branch": "master",
+			"path": "/md2man",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/hcl",
+			"repository": "https://github.com/hashicorp/hcl",
+			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kr/pretty",
+			"repository": "https://github.com/kr/pretty",
+			"revision": "add1dbc86daf0f983cd4a48ceb39deb95c729b67",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kr/text",
+			"repository": "https://github.com/kr/text",
+			"revision": "bb797dc4fb8320488f47bf11de07a733d7233e1f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/magiconair/properties",
+			"repository": "https://github.com/magiconair/properties",
+			"revision": "c265cfa48dda6474e208715ca93e987829f572f8",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/mattbaird/elastigo/lib",
+			"repository": "https://github.com/mattbaird/elastigo",
+			"revision": "d0839da905fef1221e2b19ddfaf34985add62e10",
+			"branch": "master",
+			"path": "/lib",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/mitchellh/mapstructure",
+			"repository": "https://github.com/mitchellh/mapstructure",
+			"revision": "d2dd0262208475919e1a362f675cfc0e7c10e905",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/russross/blackfriday",
+			"repository": "https://github.com/russross/blackfriday",
+			"revision": "b43df972fb5fdf3af8d2e90f38a69d374fe26dd0",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/shurcooL/sanitized_anchor_name",
+			"repository": "https://github.com/shurcooL/sanitized_anchor_name",
+			"revision": "10ef21a441db47d8b13ebcc5fd2310f636973c77",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/spf13/cast",
+			"repository": "https://github.com/spf13/cast",
+			"revision": "27b586b42e29bec072fe7379259cc719e1289da6",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/spf13/cobra",
+			"repository": "https://github.com/spf13/cobra",
+			"revision": "4c05eb1145f16d0e6bb4a3e1b6d769f4713cb41f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/spf13/jwalterweatherman",
+			"repository": "https://github.com/spf13/jwalterweatherman",
+			"revision": "33c24e77fb80341fe7130ee7c594256ff08ccc46",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/spf13/pflag",
+			"repository": "https://github.com/spf13/pflag",
+			"revision": "1f296710f879815ad9e6d39d947c828c3e4b4c3d",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/spf13/viper",
+			"repository": "https://github.com/spf13/viper",
+			"revision": "c975dc1b4eacf4ec7fdbf0873638de5d090ba323",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/fsnotify.v1",
+			"repository": "https://gopkg.in/fsnotify.v1",
+			"revision": "875cf421b32f8f1b31bd43776297876d01542279",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/yaml.v2",
+			"repository": "https://gopkg.in/yaml.v2",
+			"revision": "a83829b6f1293c91addabc89d0571c246397bbf4",
+			"branch": "v2",
+			"notests": true
+		}
+	]
+}

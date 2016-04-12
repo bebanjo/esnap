@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	es "github.com/bebanjo/esnap/vendor/src/github.com/mattbaird/elastigo/lib"
+	es "github.com/bebanjo/elastigo/lib"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

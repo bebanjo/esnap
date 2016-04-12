@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	es "github.com/bebanjo/esnap/vendor/src/github.com/mattbaird/elastigo/lib"
+	es "github.com/bebanjo/elastigo/lib"
 )
 
 func TestIndicesNames(t *testing.T) {
