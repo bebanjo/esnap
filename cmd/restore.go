@@ -13,7 +13,7 @@ import (
 // restoreCmd represents the restore command
 var restoreCmd = &cobra.Command{
 	Use:   "restore",
-	Short: "Restore a snapshot.",
+	Short: "Restore a snapshot",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
@@ -21,7 +21,7 @@ var restoreCmd = &cobra.Command{
 
 		// Origin, destination and snapshot names are required
 		if *originRestore == "" || *destinationRestore == "" || *snapshot == "" {
-			fmt.Println("origin, destination and snapshot are required")
+			fmt.Fprintf(os.Stderr, "origin, destination and snapshot are required\n")
 			os.Exit(1)
 		}
 
@@ -29,7 +29,7 @@ var restoreCmd = &cobra.Command{
 		if *fresh {
 			fmt.Println("applying fresh restore")
 			if err := freshRestore(conn, *originRestore, *destinationRestore, *snapshot, date); err != nil {
-				fmt.Println("error when doing a fresh restore", err)
+				fmt.Fprintf(os.Stderr, "fresh restore: error %v\n", err)
 				os.Exit(1)
 			}
 			os.Exit(0)
@@ -37,7 +37,7 @@ var restoreCmd = &cobra.Command{
 
 		// restore without recreating aliases
 		if err := restore(conn, *originRestore, *destinationRestore, *snapshot, date); err != nil {
-			fmt.Println("error when doing a fresh restore", err)
+			fmt.Fprintf(os.Stderr, "restore: error %v\n", err)
 			os.Exit(1)
 		}
 
@@ -59,7 +59,7 @@ var restoreCmd = &cobra.Command{
 
 				// add alias when new index is green
 				if err := addAliasPolling(conn, aliasInfo.Name, indexName); err != nil {
-					fmt.Println("error adding alias", aliasInfo.Name, "to index", indexName, err)
+					fmt.Fprintf(os.Stderr, "add alias: error with alias %s and index %s %v\n", aliasInfo.Name, indexName, err)
 					disableDeletion = true
 					continue
 				}
@@ -67,14 +67,14 @@ var restoreCmd = &cobra.Command{
 
 			// do not delete old indices if an alias to a new index failed to be created
 			if disableDeletion {
-				fmt.Println("restore finished without deletion, see errors above")
+				fmt.Println("restore finished without deletions, see errors above")
 				os.Exit(0)
 			}
 
 			// delete old indices
 			for _, indexNameToDelete := range indicesNamesToDelete {
 				if _, err := conn.DeleteIndex(indexNameToDelete); err != nil {
-					fmt.Println("error when deleting index", indexNameToDelete, err)
+					fmt.Fprintf(os.Stderr, "delete index: error with index %s %v\n", indexNameToDelete, err)
 				}
 			}
 

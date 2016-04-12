@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	es "github.com/bebanjo/esnap/vendor/src/github.com/mattbaird/elastigo/lib"
 	"github.com/spf13/cobra"
@@ -18,12 +19,12 @@ var cleanupCmd = &cobra.Command{
 		indicesInfo := conn.GetCatIndexInfo("")
 		aliasesInfo := conn.GetCatAliasInfo("")
 
-		indicesToRemove := indicesToRemove(indicesInfo, aliasesInfo)
-		for _, indexToRemove := range indicesToRemove {
-			fmt.Printf("deleting index %s... ", indexToRemove)
-			_, err := conn.DeleteIndex(indexToRemove)
+		indicesNamesToDelete := indicesNamesToDelete(indicesInfo, aliasesInfo)
+		for _, indexNameToDelete := range indicesNamesToDelete {
+			fmt.Printf("deleting index %s... ", indexNameToDelete)
+			_, err := conn.DeleteIndex(indexNameToDelete)
 			if err != nil {
-				fmt.Printf("ERROR: %v\n", err)
+				fmt.Fprintf(os.Stderr, "delete index: error with index %s %v\n", indexNameToDelete, err)
 			}
 			fmt.Println("OK")
 		}
@@ -34,8 +35,8 @@ func init() {
 	RootCmd.AddCommand(cleanupCmd)
 }
 
-func indicesToRemove(indicesInfo []es.CatIndexInfo, aliasesInfo []es.CatAliasInfo) []string {
-	var toRemove []string
+func indicesNamesToDelete(indicesInfo []es.CatIndexInfo, aliasesInfo []es.CatAliasInfo) []string {
+	var toDelete []string
 	var found bool
 
 	for _, indexInfo := range indicesInfo {
@@ -47,10 +48,10 @@ func indicesToRemove(indicesInfo []es.CatIndexInfo, aliasesInfo []es.CatAliasInf
 		}
 
 		if !found {
-			toRemove = append(toRemove, indexInfo.Name)
+			toDelete = append(toDelete, indexInfo.Name)
 		}
 		found = false
 	}
 
-	return toRemove
+	return toDelete
 }

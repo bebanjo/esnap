@@ -7,7 +7,7 @@ import (
 	es "github.com/bebanjo/esnap/vendor/src/github.com/mattbaird/elastigo/lib"
 )
 
-func TestIndicesToRemove(t *testing.T) {
+func TestIndicesNamesToDelete(t *testing.T) {
 	indicesInfo := []es.CatIndexInfo{
 		es.CatIndexInfo{
 			Name: "index0",
@@ -37,12 +37,12 @@ func TestIndicesToRemove(t *testing.T) {
 		},
 	}
 
-	expectedIndicesToRemove := []string{
+	expectedIndicesNamesToDelete := []string{
 		"index0", "index2", "index4",
 	}
 
-	indicesToRemove := indicesToRemove(indicesInfo, aliasesInfo)
-	if !reflect.DeepEqual(indicesToRemove, expectedIndicesToRemove) {
-		t.Errorf("got %v, expected %v", indicesToRemove, expectedIndicesToRemove)
+	indicesNamesToDelete := indicesNamesToDelete(indicesInfo, aliasesInfo)
+	if !reflect.DeepEqual(indicesNamesToDelete, expectedIndicesNamesToDelete) {
+		t.Errorf("got %v, expected %v", indicesNamesToDelete, expectedIndicesNamesToDelete)
 	}
 }

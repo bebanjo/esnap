@@ -13,7 +13,7 @@ import (
 // takeCmd represents the snapshot take command
 var takeCmd = &cobra.Command{
 	Use:   "take",
-	Short: "Take a snapshot.",
+	Short: "Take a snapshot",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
@@ -23,7 +23,7 @@ var takeCmd = &cobra.Command{
 
 		// A destinationTake is required
 		if *destinationTake == "" {
-			fmt.Println("destination required")
+			fmt.Fprintf(os.Stderr, "take: destination required\n")
 			os.Exit(1)
 		}
 
@@ -38,7 +38,7 @@ var takeCmd = &cobra.Command{
 				"protocol":               "https",
 			}
 			if _, err := conn.CreateSnapshotRepository(*destinationTake, repositoryType, settings); err != nil {
-				fmt.Println(err)
+				fmt.Fprintf(os.Stderr, "create repository: error for %s %v", *destinationTake, err)
 				os.Exit(1)
 			}
 		}
@@ -53,7 +53,7 @@ var takeCmd = &cobra.Command{
 		// Take Snapshot
 		_, err := conn.TakeSnapshot(*destinationTake, date, nil, query)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintf(os.Stderr, "take: error %v\n", err)
 			os.Exit(1)
 		}
 
@@ -62,7 +62,7 @@ var takeCmd = &cobra.Command{
 		for state != "SUCCESS" {
 			snapshots, err := conn.GetSnapshotByName(*destinationTake, date, nil)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintf(os.Stderr, "take: error getting snapshot %s %v\n", *destinationTake, err)
 				os.Exit(1)
 			}
 
@@ -82,9 +82,9 @@ func init() {
 	RootCmd.AddCommand(takeCmd)
 
 	createRepository = takeCmd.PersistentFlags().BoolP("create-repository", "r", false, "Create repository")
-	destinationTake = takeCmd.PersistentFlags().StringP("destinationTake", "d", "", "Destination of the snapshot")
+	destinationTake = takeCmd.PersistentFlags().StringP("destination-take", "d", "", "Destination of the snapshot")
 	allIndices = takeCmd.PersistentFlags().BoolP("all", "a", false,
-		"Take snapshot of all indices. Otherwise, only those matching the destinationTake")
+		"Take snapshot of all indices. Otherwise, only those matching the destination-take")
 }
 
 func indicesNames(catIndexInfo []es.CatIndexInfo) []string {
