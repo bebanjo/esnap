@@ -36,8 +36,9 @@ var RootCmd = &cobra.Command{
 
 // Command line flags
 var createRepository *bool
-var destination *string
-var allIndices *bool
+var destinationTake *string
+var originRestore, destinationRestore, snapshot *string
+var allIndices, fresh *bool
 
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.

@@ -21,37 +21,37 @@ var takeCmd = &cobra.Command{
 		var state = "STARTING"
 		var query interface{}
 
-		// A destination is required
-		if *destination == "" {
+		// A destinationTake is required
+		if *destinationTake == "" {
 			fmt.Println("Destination required")
 			os.Exit(1)
 		}
 
 		// Create repository if --create-repository flag is enabled
 		if *createRepository {
-			fmt.Println("Creating repository", destination)
+			fmt.Println("Creating repository", destinationTake)
 			repositoryType := map[string]interface{}{"type": "s3"}
 			settings := map[string]interface{}{
-				"bucket":                 fmt.Sprintf("bebanjo-elasticsearch-snapshots-%s", *destination),
+				"bucket":                 fmt.Sprintf("bebanjo-elasticsearch-snapshots-%s", *destinationTake),
 				"region":                 "eu-west-1",
 				"server_side_encryption": true,
 				"protocol":               "https",
 			}
-			if _, err := conn.CreateSnapshotRepository(*destination, repositoryType, settings); err != nil {
+			if _, err := conn.CreateSnapshotRepository(*destinationTake, repositoryType, settings); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 		}
 
-		// Select only destination-related indices if --all flag is not used
+		// Select only destinationTake-related indices if --all flag is not used
 		if !*allIndices {
-			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destination))
+			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destinationTake))
 			indicesNamesString := strings.Join(indicesNames(indicesInfo), ",")
 			query = map[string]interface{}{"indices": indicesNamesString}
 		}
 
 		// Take Snapshot
-		_, err := conn.TakeSnapshot(*destination, date, nil, query)
+		_, err := conn.TakeSnapshot(*destinationTake, date, nil, query)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -60,7 +60,7 @@ var takeCmd = &cobra.Command{
 		// Poll for Snapshot status until it is done
 		fmt.Println("Waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
-			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
+			snapshots, err := conn.GetSnapshotByName(*destinationTake, date, nil)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -82,9 +82,9 @@ func init() {
 	RootCmd.AddCommand(takeCmd)
 
 	createRepository = takeCmd.PersistentFlags().BoolP("create-repository", "r", false, "Create repository")
-	destination = takeCmd.PersistentFlags().StringP("destination", "d", "", "Destination of the snapshot")
+	destinationTake = takeCmd.PersistentFlags().StringP("destinationTake", "d", "", "Destination of the snapshot")
 	allIndices = takeCmd.PersistentFlags().BoolP("all", "a", false,
-		"Take snapshot of all indices. Otherwise, only those matching the destination")
+		"Take snapshot of all indices. Otherwise, only those matching the destinationTake")
 }
 
 func indicesNames(catIndexInfo []es.CatIndexInfo) []string {
