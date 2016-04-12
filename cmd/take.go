@@ -8,6 +8,7 @@ import (
 
 	es "github.com/bebanjo/esnap/vendor/src/github.com/mattbaird/elastigo/lib"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // takeCmd represents the snapshot take command
@@ -29,11 +30,11 @@ var takeCmd = &cobra.Command{
 
 		// Create repository if --create-repository flag is enabled
 		if *createRepository {
-			fmt.Println("creating repository", destinationTake)
+			fmt.Println("creating repository", *destinationTake)
 			repositoryType := map[string]interface{}{"type": "s3"}
 			settings := map[string]interface{}{
-				"bucket":                 fmt.Sprintf("bebanjo-elasticsearch-snapshots-%s", *destinationTake),
-				"region":                 "eu-west-1",
+				"bucket":                 fmt.Sprintf("%s%s", viper.Get("Bucket"), *destinationTake),
+				"region":                 viper.Get("AZ"),
 				"server_side_encryption": true,
 				"protocol":               "https",
 			}

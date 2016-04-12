@@ -70,4 +70,11 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	if viper.Get("Bucket") == nil {
+		viper.Set("Bucket", "my-bucket")
+	}
+	if viper.Get("AZ") == nil {
+		viper.Set("AZ", "eu-west-1")
+	}
 }
