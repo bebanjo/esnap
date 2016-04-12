@@ -18,8 +18,8 @@
 		{
 			"importpath": "github.com/bebanjo/elastigo",
 			"repository": "https://github.com/bebanjo/elastigo",
-			"revision": "4d64addacc9926755f08603e24f62704da45c216",
-			"branch": "alias-cat-info",
+			"revision": "5adf312e46cae88115a18f16eb9965bddd1c87f7",
+			"branch": "master",
 			"notests": true
 		},
 		{
