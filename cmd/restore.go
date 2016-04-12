@@ -20,7 +20,7 @@ var restoreCmd = &cobra.Command{
 		var date = time.Now().Format("20060102150405")
 
 		// Origin, destination and snapshot names are required
-		if *originRestore == "" || *destinationRestore == "" || *snapshot == "" {
+		if *originRestore == "" || *destination == "" || *snapshot == "" {
 			fmt.Fprintf(os.Stderr, "origin, destination and snapshot are required\n")
 			os.Exit(1)
 		}
@@ -28,7 +28,7 @@ var restoreCmd = &cobra.Command{
 		// fresh restore
 		if *fresh {
 			fmt.Println("applying fresh restore")
-			if err := freshRestore(conn, *originRestore, *destinationRestore, *snapshot, date); err != nil {
+			if err := freshRestore(conn, *originRestore, *destination, *snapshot, date); err != nil {
 				fmt.Fprintf(os.Stderr, "fresh restore: error %v\n", err)
 				os.Exit(1)
 			}
@@ -36,14 +36,14 @@ var restoreCmd = &cobra.Command{
 		}
 
 		// restore without recreating aliases
-		if err := restore(conn, *originRestore, *destinationRestore, *snapshot, date); err != nil {
+		if err := restore(conn, *originRestore, *destination, *snapshot, date); err != nil {
 			fmt.Fprintf(os.Stderr, "restore: error %v\n", err)
 			os.Exit(1)
 		}
 
 		// iterate aliases to do the swap
 		suffix := fmt.Sprintf("restored%s_from%s", date, *snapshot)
-		aliasesInfo := conn.GetCatAliasInfo(fmt.Sprintf("%s*", *destinationRestore))
+		aliasesInfo := conn.GetCatAliasInfo(fmt.Sprintf("%s*", *destination))
 		for _, aliasInfo := range aliasesInfo {
 			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", aliasInfo.Name))
 			indicesNames := indicesNames(indicesInfo)
@@ -87,8 +87,6 @@ func init() {
 
 	originRestore = restoreCmd.PersistentFlags().StringP("origin", "o", "",
 		"Origin of the snapshot to restore")
-	destinationRestore = restoreCmd.PersistentFlags().StringP("destination", "d", *originRestore,
-		"Destination of the snapshot to restore. Defaults to origin")
 	snapshot = restoreCmd.PersistentFlags().StringP("snapshot", "s", "",
 		"Name of the snapshot to restore")
 	fresh = restoreCmd.PersistentFlags().BoolP("fresh", "f", false,

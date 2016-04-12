@@ -8,7 +8,6 @@ import (
 
 	es "github.com/bebanjo/elastigo/lib"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // takeCmd represents the snapshot take command
@@ -22,37 +21,30 @@ var takeCmd = &cobra.Command{
 		var state = "STARTING"
 		var query interface{}
 
-		// A destinationTake is required
-		if *destinationTake == "" {
+		// A destination is required
+		if *destination == "" {
 			fmt.Fprintf(os.Stderr, "take: destination required\n")
 			os.Exit(1)
 		}
 
 		// Create repository if --create-repository flag is enabled
-		if *createRepository {
-			fmt.Println("creating repository", *destinationTake)
-			repositoryType := map[string]interface{}{"type": "s3"}
-			settings := map[string]interface{}{
-				"bucket":                 fmt.Sprintf("%s%s", viper.Get("Bucket"), *destinationTake),
-				"region":                 viper.Get("AZ"),
-				"server_side_encryption": true,
-				"protocol":               "https",
-			}
-			if _, err := conn.CreateSnapshotRepository(*destinationTake, repositoryType, settings); err != nil {
-				fmt.Fprintf(os.Stderr, "create repository: error for %s %v", *destinationTake, err)
+		if *createRepositoryTake {
+			fmt.Println("creating repository", *destination)
+			if err := createRepository(conn, *destination); err != nil {
+				fmt.Fprintf(os.Stderr, "create repository: error for %s %v", *destination, err)
 				os.Exit(1)
 			}
 		}
 
 		// Select only destinationTake-related indices if --all flag is not used
 		if !*allIndices {
-			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destinationTake))
+			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destination))
 			indicesNamesString := strings.Join(indicesNames(indicesInfo), ",")
 			query = map[string]interface{}{"indices": indicesNamesString}
 		}
 
 		// Take Snapshot
-		_, err := conn.TakeSnapshot(*destinationTake, date, nil, query)
+		_, err := conn.TakeSnapshot(*destination, date, nil, query)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "take: error %v\n", err)
 			os.Exit(1)
@@ -61,9 +53,9 @@ var takeCmd = &cobra.Command{
 		// Poll for Snapshot status until it is done
 		fmt.Println("waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
-			snapshots, err := conn.GetSnapshotByName(*destinationTake, date, nil)
+			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "take: error getting snapshot %s %v\n", *destinationTake, err)
+				fmt.Fprintf(os.Stderr, "take: error getting snapshot %s %v\n", *destination, err)
 				os.Exit(1)
 			}
 
@@ -82,10 +74,9 @@ var takeCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(takeCmd)
 
-	createRepository = takeCmd.PersistentFlags().BoolP("create-repository", "r", false, "Create repository")
-	destinationTake = takeCmd.PersistentFlags().StringP("destination-take", "d", "", "Destination of the snapshot")
+	createRepositoryTake = takeCmd.PersistentFlags().BoolP("create-repository", "r", false, "Create repository")
 	allIndices = takeCmd.PersistentFlags().BoolP("all", "a", false,
-		"Take snapshot of all indices. Otherwise, only those matching the destination-take")
+		"Take snapshot of all indices. Otherwise, only those matching the destination")
 }
 
 func indicesNames(catIndexInfo []es.CatIndexInfo) []string {

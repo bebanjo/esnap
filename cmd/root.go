@@ -32,9 +32,9 @@ var RootCmd = &cobra.Command{
 }
 
 // Command line flags
-var createRepository *bool
-var destinationTake *string
-var originRestore, destinationRestore, snapshot *string
+var destination *string
+var createRepositoryTake *bool
+var originRestore, snapshot *string
 var allIndices, fresh *bool
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -54,6 +54,7 @@ func init() {
 	// will be global for your application.
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.esnap.yaml)")
+	destination = RootCmd.PersistentFlags().StringP("destination", "d", "", "Destination for the command action")
 }
 
 // initConfig reads in config file and ENV variables if set.
