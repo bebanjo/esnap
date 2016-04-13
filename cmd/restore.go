@@ -42,7 +42,7 @@ var restoreCmd = &cobra.Command{
 		}
 
 		// iterate aliases to do the swap
-		suffix := fmt.Sprintf("restored%s_from%s", date, *snapshot)
+		suffix := fmt.Sprintf("%s%s", date, *snapshot)
 		aliasesInfo := conn.GetCatAliasInfo(fmt.Sprintf("%s*", *destination))
 		for _, aliasInfo := range aliasesInfo {
 			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", aliasInfo.Name))
@@ -108,8 +108,8 @@ func freshRestore(conn *es.Conn, origin, destination, snapshotName, date string)
 	query := map[string]interface{}{
 		"ignore_unavailable":   true,
 		"include_global_state": false,
-		"rename_pattern":       fmt.Sprintf("%s_(.+)", origin),
-		"rename_replacement":   fmt.Sprintf("%s_$1_restored%s_from%s", destination, date, snapshotName),
+		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+", origin),
+		"rename_replacement":   fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
 	}
 
 	_, err := conn.RestoreSnapshot(origin, snapshotName, nil, query)
@@ -121,8 +121,8 @@ func restore(conn *es.Conn, origin, destination, snapshotName, date string) erro
 		"ignore_unavailable":   "true",
 		"include_global_state": false,
 		"include_aliases":      false,
-		"rename_pattern":       fmt.Sprintf("%s_(.+)", origin),
-		"rename_replacement":   fmt.Sprintf("%s_$1_restored%s_from%s", destination, date, snapshotName),
+		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+", origin),
+		"rename_replacement":   fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
 	}
 
 	_, err := conn.RestoreSnapshot(origin, snapshotName, nil, query)
