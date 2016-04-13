@@ -14,7 +14,11 @@ import (
 var restoreCmd = &cobra.Command{
 	Use:   "restore",
 	Short: "Restore a snapshot",
-	Long:  ``,
+	Long: `You are required to set an origin, destination, and snapshot name.
+By default, it will fetch the given snapshot from the origin repository, creating
+new indices out of the ones from the snapshot, and make a swap of the alias, removing
+the old indices. If you use the fresh option, all indices and alias will be restored,
+without a swap.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
 		var date = time.Now().Format("20060102150405")

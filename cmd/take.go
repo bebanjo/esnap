@@ -14,7 +14,9 @@ import (
 var takeCmd = &cobra.Command{
 	Use:   "take",
 	Short: "Take a snapshot",
-	Long:  ``,
+	Long: `You are required to set a destination. It will create a snapshot
+on the destination repository. If repository does not exist, you can create
+it with the provided flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
 		var date = time.Now().Format("20060102150405")

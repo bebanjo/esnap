@@ -27,7 +27,9 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Creates a new repository",
-	Long:  ``,
+	Long: `It is required to specify destination, so a new repository
+will be created under this name, with a bucket named like <BUCKET><destination>
+where <BUCKET> is defined in the configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
 

@@ -12,7 +12,8 @@ import (
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
 	Short: "Cleanup unused indices",
-	Long:  ``,
+	Long: `It will find all indices that are not pointed by an alias.
+Handle with care in case this is an expected scenario!`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conn = es.NewConn()
 
