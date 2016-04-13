@@ -127,6 +127,21 @@ Global Flags:
   -d, --destination string   Destination for the command action
 ```
 
+## Configuration
+
+If you want to set a custom prefix for your repository and a Availability Zone
+where your snapshots will be stored, you need to set a configuration file
+at `$HOME/.esnap.yaml`.
+
+In this file, you can set a `bucket` and `AZ` as follows:
+
+```yaml
+bucket: "this-bucket-"
+AZ: "eu-west-1"
+```
+
+Defaults are `my-bucket-` for `bucket` and `eu-west-1` for `AZ`.
+
 ## License
 
 MIT
