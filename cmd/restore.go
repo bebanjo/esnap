@@ -108,7 +108,7 @@ func freshRestore(conn *es.Conn, origin, destination, snapshotName, date string)
 	query := map[string]interface{}{
 		"ignore_unavailable":   true,
 		"include_global_state": false,
-		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+", origin),
+		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
 		"rename_replacement":   fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
 	}
 
@@ -121,7 +121,7 @@ func restore(conn *es.Conn, origin, destination, snapshotName, date string) erro
 		"ignore_unavailable":   "true",
 		"include_global_state": false,
 		"include_aliases":      false,
-		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+", origin),
+		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
 		"rename_replacement":   fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
 	}
 
