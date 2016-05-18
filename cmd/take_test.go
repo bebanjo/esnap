@@ -9,19 +9,19 @@ import (
 
 func TestIndicesNames(t *testing.T) {
 	indicesInfo := []es.CatIndexInfo{
-		es.CatIndexInfo{
+		{
 			Name: "index0",
 		},
-		es.CatIndexInfo{
+		{
 			Name: "index1",
 		},
-		es.CatIndexInfo{
+		{
 			Name: "index2",
 		},
-		es.CatIndexInfo{
+		{
 			Name: "index3",
 		},
-		es.CatIndexInfo{
+		{
 			Name: "index4",
 		},
 	}
