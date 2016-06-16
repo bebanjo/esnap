@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -31,7 +32,7 @@ without a swap.`,
 
 		// fresh restore
 		if *fresh {
-			fmt.Println("applying fresh restore")
+			log.Println("applying fresh restore")
 			if err := freshRestore(conn, *originRestore, *destination, *snapshot, date); err != nil {
 				fmt.Fprintf(os.Stderr, "fresh restore: error %v\n", err)
 				os.Exit(1)
@@ -71,7 +72,7 @@ without a swap.`,
 
 			// do not delete old indices if an alias to a new index failed to be created
 			if disableDeletion {
-				fmt.Println("restore finished without deletions, see errors above")
+				log.Println("restore finished without deletions, see errors above")
 				os.Exit(0)
 			}
 
@@ -135,7 +136,7 @@ func restore(conn *es.Conn, origin, destination, snapshotName, date string) erro
 
 func addAliasPolling(conn *es.Conn, aliasName, indexName string) error {
 	var state string
-	fmt.Printf("index %s is in status... ", indexName)
+	log.Printf("index %s is in status... ", indexName)
 	for state != "green" {
 		indexInfo := conn.GetCatIndexInfo(indexName)
 		if len(indexInfo) < 1 {
@@ -144,15 +145,15 @@ func addAliasPolling(conn *es.Conn, aliasName, indexName string) error {
 
 		state = indexInfo[0].Health
 		if state == "green" {
-			fmt.Println(state)
-			fmt.Println("Adding alias", aliasName, "to index", indexName)
+			log.Printf("index %s is in status... %s ", indexName, state)
+			log.Println("Adding alias", aliasName, "to index", indexName)
 			if _, err := conn.AddAlias(indexName, aliasName); err != nil {
 				return err
 			}
 
 			return nil
 		}
-		fmt.Printf("%s... ", state)
+		log.Printf("index %s is in status... %s ", indexName, state)
 
 		time.Sleep(3 * time.Second)
 	}

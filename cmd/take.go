@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -22,6 +23,7 @@ it with the provided flag.`,
 		var date = time.Now().Format("20060102150405")
 		var state = "STARTING"
 		var query interface{}
+		var indicesNamesString string
 
 		// A destination is required
 		if *destination == "" {
@@ -31,7 +33,7 @@ it with the provided flag.`,
 
 		// Create repository if --create-repository flag is enabled
 		if *createRepositoryTake {
-			fmt.Println("creating repository", *destination)
+			log.Println("creating repository", *destination)
 			if err := createRepository(conn, *destination); err != nil {
 				fmt.Fprintf(os.Stderr, "create repository: error for %s %v", *destination, err)
 				os.Exit(1)
@@ -41,9 +43,13 @@ it with the provided flag.`,
 		// Select only destinationTake-related indices if --all flag is not used
 		if !*allIndices {
 			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destination))
-			indicesNamesString := strings.Join(indicesNames(indicesInfo), ",")
+			indicesNamesString = strings.Join(indicesNames(indicesInfo), ",")
 			query = map[string]interface{}{"indices": indicesNamesString}
+		} else {
+			indicesInfo := conn.GetCatIndexInfo("")
+			indicesNamesString = strings.Join(indicesNames(indicesInfo), ",")
 		}
+		log.Println("Taking snapshot of indices:", indicesNamesString)
 
 		// Take Snapshot
 		_, err := conn.TakeSnapshot(*destination, date, nil, query)
@@ -53,7 +59,7 @@ it with the provided flag.`,
 		}
 
 		// Poll for Snapshot status until it is done
-		fmt.Println("waiting for snapshot", date, "to be ready...", state)
+		log.Println("waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
 			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
 			if err != nil {
@@ -66,7 +72,7 @@ it with the provided flag.`,
 			}
 
 			state = snapshots.Snapshots[0].State
-			fmt.Println("waiting for snapshot", date, "to be ready...", state)
+			log.Println("waiting for snapshot", date, "to be ready...", state)
 			time.Sleep(5 * time.Second)
 		}
 
