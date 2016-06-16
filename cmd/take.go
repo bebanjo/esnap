@@ -23,6 +23,7 @@ it with the provided flag.`,
 		var date = time.Now().Format("20060102150405")
 		var state = "STARTING"
 		var query interface{}
+		var indicesNamesString string
 
 		// A destination is required
 		if *destination == "" {
@@ -42,9 +43,13 @@ it with the provided flag.`,
 		// Select only destinationTake-related indices if --all flag is not used
 		if !*allIndices {
 			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destination))
-			indicesNamesString := strings.Join(indicesNames(indicesInfo), ",")
+			indicesNamesString = strings.Join(indicesNames(indicesInfo), ",")
 			query = map[string]interface{}{"indices": indicesNamesString}
+		} else {
+			indicesInfo := conn.GetCatIndexInfo("")
+			indicesNamesString = strings.Join(indicesNames(indicesInfo), ",")
 		}
+		log.Println("Taking snapshot of indices:", indicesNamesString)
 
 		// Take Snapshot
 		_, err := conn.TakeSnapshot(*destination, date, nil, query)
