@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	es "github.com/bebanjo/elastigo/lib"
@@ -39,7 +40,7 @@ where <BUCKET> is defined in the configuration.`,
 			os.Exit(1)
 		}
 
-		fmt.Println("creating repository", *destination)
+		log.Println("creating repository", *destination)
 		if err := createRepository(conn, *destination); err != nil {
 			fmt.Fprintf(os.Stderr, "create repository: error for %s %v", *destination, err)
 			os.Exit(1)

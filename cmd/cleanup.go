@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	es "github.com/bebanjo/elastigo/lib"
@@ -22,12 +23,11 @@ Handle with care in case this is an expected scenario!`,
 
 		indicesNamesToDelete := indicesNamesToDelete(indicesInfo, aliasesInfo)
 		for _, indexNameToDelete := range indicesNamesToDelete {
-			fmt.Printf("deleting index %s... ", indexNameToDelete)
 			_, err := conn.DeleteIndex(indexNameToDelete)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "delete index: error with index %s %v\n", indexNameToDelete, err)
 			}
-			fmt.Println("OK")
+			log.Printf("deleting index %s... OK", indexNameToDelete)
 		}
 	},
 }
