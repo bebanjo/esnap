@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -78,4 +79,7 @@ func initConfig() {
 	if viper.Get("AZ") == nil {
 		viper.Set("AZ", "eu-west-1")
 	}
+
+	// set logs to stdout
+	log.SetOutput(os.Stdout)
 }
