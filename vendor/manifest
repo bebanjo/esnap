@@ -21,7 +21,7 @@
 			"importpath": "github.com/bebanjo/elastigo",
 			"repository": "https://github.com/bebanjo/elastigo",
 			"vcs": "git",
-			"revision": "eb64079846b888e991940f69b5df6904722ff988",
+			"revision": "2f9d593fb3792c4b6e3328f469ebb0df62ac1ce2",
 			"branch": "master",
 			"notests": true
 		},
