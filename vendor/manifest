@@ -4,6 +4,7 @@
 		{
 			"importpath": "github.com/BurntSushi/toml",
 			"repository": "https://github.com/BurntSushi/toml",
+			"vcs": "",
 			"revision": "bbd5bb678321a0d6e58f1099321dfa73391c1b6f",
 			"branch": "master",
 			"notests": true
@@ -11,6 +12,7 @@
 		{
 			"importpath": "github.com/araddon/gou",
 			"repository": "https://github.com/araddon/gou",
+			"vcs": "",
 			"revision": "c4d51044125da629d6f2aa594f25b45c451a7d2a",
 			"branch": "master",
 			"notests": true
@@ -18,35 +20,65 @@
 		{
 			"importpath": "github.com/bebanjo/elastigo",
 			"repository": "https://github.com/bebanjo/elastigo",
-			"revision": "5adf312e46cae88115a18f16eb9965bddd1c87f7",
+			"vcs": "git",
+			"revision": "eb64079846b888e991940f69b5df6904722ff988",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/bitly/go-hostpool",
 			"repository": "https://github.com/bitly/go-hostpool",
+			"vcs": "",
 			"revision": "d0e59c22a56e8dadfed24f74f452cea5a52722d2",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/bmizerany/assert",
+			"repository": "https://github.com/bmizerany/assert",
+			"vcs": "git",
+			"revision": "b7ed37b82869576c289d7d97fb2bbd8b64a0cb28",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/cpuguy83/go-md2man/md2man",
 			"repository": "https://github.com/cpuguy83/go-md2man",
+			"vcs": "",
 			"revision": "2724a9c9051aa62e9cca11304e7dd518e9e41599",
 			"branch": "master",
 			"path": "/md2man",
 			"notests": true
 		},
 		{
+			"importpath": "github.com/gopherjs/gopherjs/js",
+			"repository": "https://github.com/gopherjs/gopherjs",
+			"vcs": "git",
+			"revision": "6a1c576b7adbb8ddf3a044df225011148fcc0e49",
+			"branch": "master",
+			"path": "/js",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/hashicorp/hcl",
 			"repository": "https://github.com/hashicorp/hcl",
+			"vcs": "",
 			"revision": "2604f3bda7e8960c1be1063709e7d7f0765048d0",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/jtolds/gls",
+			"repository": "https://github.com/jtolds/gls",
+			"vcs": "git",
+			"revision": "8ddce2a84170772b95dd5d576c48d517b22cac63",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/kr/pretty",
 			"repository": "https://github.com/kr/pretty",
+			"vcs": "",
 			"revision": "add1dbc86daf0f983cd4a48ceb39deb95c729b67",
 			"branch": "master",
 			"notests": true
@@ -54,6 +86,7 @@
 		{
 			"importpath": "github.com/kr/text",
 			"repository": "https://github.com/kr/text",
+			"vcs": "",
 			"revision": "bb797dc4fb8320488f47bf11de07a733d7233e1f",
 			"branch": "master",
 			"notests": true
@@ -61,6 +94,7 @@
 		{
 			"importpath": "github.com/magiconair/properties",
 			"repository": "https://github.com/magiconair/properties",
+			"vcs": "",
 			"revision": "c265cfa48dda6474e208715ca93e987829f572f8",
 			"branch": "master",
 			"notests": true
@@ -68,6 +102,7 @@
 		{
 			"importpath": "github.com/mattbaird/elastigo/lib",
 			"repository": "https://github.com/mattbaird/elastigo",
+			"vcs": "",
 			"revision": "d0839da905fef1221e2b19ddfaf34985add62e10",
 			"branch": "master",
 			"path": "/lib",
@@ -76,6 +111,7 @@
 		{
 			"importpath": "github.com/mitchellh/mapstructure",
 			"repository": "https://github.com/mitchellh/mapstructure",
+			"vcs": "",
 			"revision": "d2dd0262208475919e1a362f675cfc0e7c10e905",
 			"branch": "master",
 			"notests": true
@@ -83,6 +119,7 @@
 		{
 			"importpath": "github.com/russross/blackfriday",
 			"repository": "https://github.com/russross/blackfriday",
+			"vcs": "",
 			"revision": "b43df972fb5fdf3af8d2e90f38a69d374fe26dd0",
 			"branch": "master",
 			"notests": true
@@ -90,13 +127,32 @@
 		{
 			"importpath": "github.com/shurcooL/sanitized_anchor_name",
 			"repository": "https://github.com/shurcooL/sanitized_anchor_name",
+			"vcs": "",
 			"revision": "10ef21a441db47d8b13ebcc5fd2310f636973c77",
 			"branch": "master",
 			"notests": true
 		},
 		{
+			"importpath": "github.com/smartystreets/assertions",
+			"repository": "https://github.com/smartystreets/assertions",
+			"vcs": "git",
+			"revision": "40711f7748186bbf9c99977cd89f21ce1a229447",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/smartystreets/goconvey/convey",
+			"repository": "https://github.com/smartystreets/goconvey",
+			"vcs": "git",
+			"revision": "c53abc99456fa3402dd33c15ee51c3e545e04a3f",
+			"branch": "master",
+			"path": "/convey",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/spf13/cast",
 			"repository": "https://github.com/spf13/cast",
+			"vcs": "",
 			"revision": "27b586b42e29bec072fe7379259cc719e1289da6",
 			"branch": "master",
 			"notests": true
@@ -104,6 +160,7 @@
 		{
 			"importpath": "github.com/spf13/cobra",
 			"repository": "https://github.com/spf13/cobra",
+			"vcs": "",
 			"revision": "4c05eb1145f16d0e6bb4a3e1b6d769f4713cb41f",
 			"branch": "master",
 			"notests": true
@@ -111,6 +168,7 @@
 		{
 			"importpath": "github.com/spf13/jwalterweatherman",
 			"repository": "https://github.com/spf13/jwalterweatherman",
+			"vcs": "",
 			"revision": "33c24e77fb80341fe7130ee7c594256ff08ccc46",
 			"branch": "master",
 			"notests": true
@@ -118,6 +176,7 @@
 		{
 			"importpath": "github.com/spf13/pflag",
 			"repository": "https://github.com/spf13/pflag",
+			"vcs": "",
 			"revision": "1f296710f879815ad9e6d39d947c828c3e4b4c3d",
 			"branch": "master",
 			"notests": true
@@ -125,13 +184,24 @@
 		{
 			"importpath": "github.com/spf13/viper",
 			"repository": "https://github.com/spf13/viper",
+			"vcs": "",
 			"revision": "c975dc1b4eacf4ec7fdbf0873638de5d090ba323",
 			"branch": "master",
 			"notests": true
 		},
 		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"vcs": "git",
+			"revision": "b400c2eff1badec7022a8c8f5bea058b6315eed7",
+			"branch": "master",
+			"path": "/context",
+			"notests": true
+		},
+		{
 			"importpath": "gopkg.in/fsnotify.v1",
 			"repository": "https://gopkg.in/fsnotify.v1",
+			"vcs": "",
 			"revision": "875cf421b32f8f1b31bd43776297876d01542279",
 			"branch": "master",
 			"notests": true
@@ -139,6 +209,7 @@
 		{
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
+			"vcs": "",
 			"revision": "a83829b6f1293c91addabc89d0571c246397bbf4",
 			"branch": "v2",
 			"notests": true
