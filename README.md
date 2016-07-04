@@ -113,6 +113,25 @@ Global Flags:
 
 ```
 
+### Rotate snapshots
+
+```
+Removes snapshots older than the given age, where default is 30 days.
+You are required to set a `destination` flag, which represents the
+environment where your snapshots are stored.
+
+Usage:
+  esnap rotate [flags]
+
+  Flags:
+    -a, --age int   Maximun age in days to keep snapshots (default 30)
+
+    Global Flags:
+          --config string        config file (default is $HOME/.esnap.yaml)
+	    -d, --destination string   Destination for the command action
+
+```
+
 ### Cleanup indices
 
 ```
