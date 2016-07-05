@@ -49,6 +49,7 @@ var rotateCmd = &cobra.Command{
 		}
 
 		log.Printf("Found %d snapshots on %s", len(res.Snapshots), *destination)
+		log.Printf("Deleting snapshots older than %v", limit)
 		for _, snapshot := range res.Snapshots {
 			if int64(limit.Sub(snapshot.StartTime)) > 0 {
 				if _, err := conn.DeleteSnapshot(*destination, snapshot.Snapshot); err != nil {
