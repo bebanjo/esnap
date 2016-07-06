@@ -36,7 +36,7 @@ var RootCmd = &cobra.Command{
 var destination *string
 var createRepositoryTake *bool
 var originRestore, snapshot *string
-var allIndices, fresh *bool
+var allIndices, fresh, aliased *bool
 var age *int
 
 // Execute adds all child commands to the root command sets flags appropriately.
