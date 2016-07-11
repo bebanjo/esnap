@@ -23,7 +23,8 @@ it with the provided flag.`,
 		var date = time.Now().Format("20060102150405")
 		var state = "STARTING"
 		var query interface{}
-		var indicesNamesString string
+		var indicesNamesToTake []string
+		var indicesFilterRule, indicesNamesString string
 
 		// A destination is required
 		if *destination == "" {
@@ -42,13 +43,28 @@ it with the provided flag.`,
 
 		// Select only destinationTake-related indices if --all flag is not used
 		if !*allIndices {
-			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", *destination))
-			indicesNamesString = strings.Join(indicesNames(indicesInfo), ",")
-			query = map[string]interface{}{"indices": indicesNamesString}
+			indicesFilterRule = fmt.Sprintf("%s*", *destination)
+			indicesInfo := conn.GetCatIndexInfo(indicesFilterRule)
+			indicesNamesToTake = indicesNames(indicesInfo)
+
 		} else {
-			indicesInfo := conn.GetCatIndexInfo("")
-			indicesNamesString = strings.Join(indicesNames(indicesInfo), ",")
+			indicesFilterRule = ""
+			indicesInfo := conn.GetCatIndexInfo(indicesFilterRule)
+			indicesNamesToTake = indicesNames(indicesInfo)
 		}
+
+		// Filter indices list if --aliased is used
+		if *aliased {
+			aliasesInfo := conn.GetCatAliasInfo(indicesFilterRule)
+			indicesNamesToTake = aliasedIndicesNames(aliasesInfo, indicesNamesToTake)
+		}
+
+		// Create the indices query in case
+		indicesNamesString = strings.Join(indicesNamesToTake, ",")
+		if indicesNamesString != "" {
+			query = map[string]interface{}{"indices": indicesNamesString}
+		}
+
 		log.Println("Taking snapshot of indices:", indicesNamesString)
 
 		// Take Snapshot
@@ -85,6 +101,8 @@ func init() {
 	createRepositoryTake = takeCmd.PersistentFlags().BoolP("create-repository", "r", false, "Create repository")
 	allIndices = takeCmd.PersistentFlags().BoolP("all", "a", false,
 		"Take snapshot of all indices. Otherwise, only those matching the destination")
+	aliased = takeCmd.PersistentFlags().BoolP("aliased", "", false,
+		"Take snapshot of indices with associated aliases only")
 }
 
 func indicesNames(catIndexInfo []es.CatIndexInfo) []string {
@@ -92,5 +110,19 @@ func indicesNames(catIndexInfo []es.CatIndexInfo) []string {
 	for _, cii := range catIndexInfo {
 		names = append(names, cii.Name)
 	}
+	return names
+}
+
+func aliasedIndicesNames(aliasesInfo []es.CatAliasInfo, indicesNames []string) []string {
+	var names []string
+	for _, aliasInfo := range aliasesInfo {
+		for _, indexName := range indicesNames {
+			if aliasInfo.Index == indexName {
+				names = append(names, indexName)
+				break
+			}
+		}
+	}
+
 	return names
 }

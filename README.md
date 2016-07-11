@@ -81,13 +81,13 @@ Usage:
   esnap take [flags]
 
 Flags:
+      --aliased             Take snapshot of indices with associated aliases only
   -a, --all                 Take snapshot of all indices. Otherwise, only those matching the destination
   -r, --create-repository   Create repository
 
 Global Flags:
       --config string        config file (default is $HOME/.esnap.yaml)
   -d, --destination string   Destination for the command action
-
 ```
 
 ### Restore a snapshot
