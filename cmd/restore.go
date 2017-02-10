@@ -96,17 +96,6 @@ func init() {
 		"Name of the snapshot to restore")
 	fresh = restoreCmd.PersistentFlags().BoolP("fresh", "f", false,
 		"Do a full, fresh restore of all data")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// restoreCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// restoreCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }
 
 func freshRestore(conn *es.Conn, origin, destination, snapshotName, date string) error {

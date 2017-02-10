@@ -9,6 +9,7 @@ related tasks. It follows strong conventions, which is important to understand
 to get the best use of it:
 
 * It uses environments, e.g. `development`, `staging`, `production`, etc.
+* Environments must match the name of the reporitories.
 * Snapshots are named after the timestamp they were took.
 * Indices are named as follows: `<environment>_<index_identifier>_<restored_timestamp><snapshot_name>`
   e.g. `development_users_2015062217505220160405080246`
@@ -25,8 +26,9 @@ For now, it is only compatible with Elasticsearch 1.X version and S3 snapshots.
 
 * Go 1.6+ installed and configured.
 * Configuration set to S3 on your end.
-* Elasticsearch 1.X
-* `elasticsearch-cloud-aws` plugin installed.
+* Elasticsearch 1.X or 2.X.
+* For Elasticsearch 1.X: [`elasticsearch-cloud-aws`](https://github.com/elastic/elasticsearch-cloud-aws).
+* For Elasticsearch 2.X: [`cloud-aws`](https://www.elastic.co/guide/en/elasticsearch/plugins/2.4/cloud-aws.html).
 
 ## Installation
 
