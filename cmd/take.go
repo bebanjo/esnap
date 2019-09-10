@@ -79,7 +79,7 @@ it with the provided flag.`,
 		for state != "SUCCESS" {
 			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "take: error getting snapshot %s %v\n", *destination, err)
+				fmt.Fprintf(os.Stderr, "take: error getting snapshot %s, id %s %v\n", *destination, date, err)
 				os.Exit(1)
 			}
 
