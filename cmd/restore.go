@@ -101,6 +101,7 @@ func freshRestore(client *esclient.Client, origin, destination, snapshotName, da
 	return client.RestoreSnapshot(origin, snapshotName, esclient.RestoreOptions{
 		IgnoreUnavailable:  true,
 		IncludeGlobalState: false,
+		IncludeAliases:     true,
 		RenamePattern:      fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
 		RenameReplacement:  fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
 	})
