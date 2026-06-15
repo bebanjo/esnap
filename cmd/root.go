@@ -54,6 +54,8 @@ func initConfig() {
 
 	viper.SetDefault("bucket", "my-bucket")
 	viper.SetDefault("AZ", "eu-west-1")
+	viper.SetDefault("protocol", "https")
+	viper.SetDefault("server_side_encryption", true)
 	viper.SetDefault("elasticsearch_url", "http://localhost:9200")
 	viper.SetDefault("elasticsearch_username", "")
 	viper.SetDefault("elasticsearch_password", "")

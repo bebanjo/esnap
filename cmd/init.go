@@ -39,7 +39,7 @@ func createRepository(client *esclient.Client, destination string) error {
 	return client.CreateSnapshotRepository(destination, esclient.RepositorySettings{
 		Bucket:               bucket,
 		Region:               viper.GetString("AZ"),
-		ServerSideEncryption: true,
-		Protocol:             "https",
+		ServerSideEncryption: viper.GetBool("server_side_encryption"),
+		Protocol:             viper.GetString("protocol"),
 	})
 }

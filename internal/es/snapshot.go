@@ -124,9 +124,7 @@ func (c *Client) RestoreSnapshot(repository, name string, opts RestoreOptions) e
 }
 
 func (c *Client) DeleteSnapshot(repository, name string) error {
-	res, err := c.es.Snapshot.Delete(repository, []string{name}, func(r *esapi.SnapshotDeleteRequest) {
-		r.WaitForCompletion = boolPtr(true)
-	})
+	res, err := c.es.Snapshot.Delete(repository, []string{name})
 	if err != nil {
 		return err
 	}
