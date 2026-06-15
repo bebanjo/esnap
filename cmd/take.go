@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
-	es "github.com/bebanjo/elastigo/lib"
+	esclient "github.com/bebanjo/esnap/internal/es"
 	"github.com/spf13/cobra"
 )
 
-// takeCmd represents the snapshot take command
 var takeCmd = &cobra.Command{
 	Use:   "take",
 	Short: "Take a snapshot",
@@ -19,79 +17,70 @@ var takeCmd = &cobra.Command{
 on the destination repository. If repository does not exist, you can create
 it with the provided flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var conn = es.NewConn()
-		var date = time.Now().Format("20060102150405")
-		var state = "STARTING"
-		var query interface{}
+		client := mustClient()
+		date := time.Now().Format("20060102150405")
+		state := "STARTING"
 		var indicesNamesToTake []string
-		var indicesFilterRule, indicesNamesString string
+		var indicesFilterRule string
 
-		// A destination is required
 		if *destination == "" {
 			fmt.Fprintf(os.Stderr, "take: destination required\n")
 			os.Exit(1)
 		}
 
-		// Create repository if --create-repository flag is enabled
 		if *createRepositoryTake {
 			log.Println("creating repository", *destination)
-			if err := createRepository(conn, *destination); err != nil {
+			if err := createRepository(client, *destination); err != nil {
 				fmt.Fprintf(os.Stderr, "create repository: error for %s %v", *destination, err)
 				os.Exit(1)
 			}
 		}
 
-		// Select only destinationTake-related indices if --all flag is not used
 		if !*allIndices {
 			indicesFilterRule = fmt.Sprintf("%s*", *destination)
-			indicesInfo := conn.GetCatIndexInfo(indicesFilterRule)
-			indicesNamesToTake = indicesNames(indicesInfo)
-
-		} else {
-			indicesFilterRule = ""
-			indicesInfo := conn.GetCatIndexInfo(indicesFilterRule)
-			indicesNamesToTake = indicesNames(indicesInfo)
 		}
 
-		// Filter indices list if --aliased is used
+		indicesInfo, err := client.GetIndices(indicesFilterRule)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "take: error fetching indices %v\n", err)
+			os.Exit(1)
+		}
+		indicesNamesToTake = indicesNames(indicesInfo)
+
 		if *aliased {
-			aliasesInfo := conn.GetCatAliasInfo(indicesFilterRule)
+			aliasesInfo, err := client.GetAliases(indicesFilterRule)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "take: error fetching aliases %v\n", err)
+				os.Exit(1)
+			}
 			indicesNamesToTake = aliasedIndicesNames(aliasesInfo, indicesNamesToTake)
 		}
 
-		// Create the indices query in case
-		indicesNamesString = strings.Join(indicesNamesToTake, ",")
-		if indicesNamesString != "" {
-			query = map[string]interface{}{"indices": indicesNamesString}
-		}
-
-		log.Println("Taking snapshot of indices:", indicesNamesString)
-
-		// Take Snapshot
-		_, err := conn.TakeSnapshot(*destination, date, nil, query)
-		if err != nil {
+		log.Println("Taking snapshot of indices:", joinNames(indicesNamesToTake))
+		if err := client.TakeSnapshot(*destination, date, indicesNamesToTake); err != nil {
 			fmt.Fprintf(os.Stderr, "take: error %v\n", err)
 			os.Exit(1)
 		}
 
-		// Poll for Snapshot status until it is done
 		log.Println("waiting for snapshot", date, "to be ready...", state)
 		for state != "SUCCESS" {
-			snapshots, err := conn.GetSnapshotByName(*destination, date, nil)
+			snapshot, err := client.GetSnapshot(*destination, date)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "take: error getting snapshot %s, id %s %v\n", *destination, date, err)
 				os.Exit(1)
 			}
-
-			if len(snapshots.Snapshots) < 1 {
+			if snapshot == nil {
 				break
 			}
 
-			state = snapshots.Snapshots[0].State
+			state = snapshot.State
 			log.Println("waiting for snapshot", date, "to be ready...", state)
+			if state == "FAILED" || state == "PARTIAL" {
+				fmt.Fprintf(os.Stderr, "take: snapshot %s finished with state %s\n", date, state)
+				os.Exit(1)
+			}
 			time.Sleep(5 * time.Second)
 		}
-
 	},
 }
 
@@ -105,16 +94,16 @@ func init() {
 		"Take snapshot of indices with associated aliases only")
 }
 
-func indicesNames(catIndexInfo []es.CatIndexInfo) []string {
-	var names []string
-	for _, cii := range catIndexInfo {
-		names = append(names, cii.Name)
+func indicesNames(indicesInfo []esclient.Index) []string {
+	names := make([]string, 0, len(indicesInfo))
+	for _, indexInfo := range indicesInfo {
+		names = append(names, indexInfo.Name)
 	}
 	return names
 }
 
-func aliasedIndicesNames(aliasesInfo []es.CatAliasInfo, indicesNames []string) []string {
-	var names []string
+func aliasedIndicesNames(aliasesInfo []esclient.Alias, indicesNames []string) []string {
+	names := make([]string, 0, len(indicesNames))
 	for _, aliasInfo := range aliasesInfo {
 		for _, indexName := range indicesNames {
 			if aliasInfo.Index == indexName {
@@ -123,6 +112,16 @@ func aliasedIndicesNames(aliasesInfo []es.CatAliasInfo, indicesNames []string) [
 			}
 		}
 	}
-
 	return names
+}
+
+func joinNames(names []string) string {
+	if len(names) == 0 {
+		return ""
+	}
+	joined := names[0]
+	for _, name := range names[1:] {
+		joined += "," + name
+	}
+	return joined
 }
