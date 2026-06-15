@@ -119,6 +119,32 @@ func TestSnapshotAndCatOperations(t *testing.T) {
 	}
 }
 
+func TestRestoreSnapshotFreshIncludesAliases(t *testing.T) {
+	client, server := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		assertBasicAuth(t, r)
+		if r.Method != http.MethodPost || r.URL.Path != "/_snapshot/staging/snap-1/_restore" {
+			t.Fatalf("unexpected request %s %s", r.Method, r.URL.String())
+		}
+		body, _ := io.ReadAll(r.Body)
+		if !strings.Contains(string(body), `"include_aliases":true`) {
+			t.Fatalf("freshRestore must send include_aliases:true, got body: %s", body)
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"accepted":true}`))
+	})
+	defer server.Close()
+
+	if err := client.RestoreSnapshot("staging", "snap-1", RestoreOptions{
+		IgnoreUnavailable:  true,
+		IncludeGlobalState: false,
+		IncludeAliases:     true,
+		RenamePattern:      `staging_(.+)_\d+(_.*)?`,
+		RenameReplacement:  `dev_$1_suffix`,
+	}); err != nil {
+		t.Fatalf("RestoreSnapshot() error = %v", err)
+	}
+}
+
 func TestRestoreAliasAndDeleteOperations(t *testing.T) {
 	client, server := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		assertBasicAuth(t, r)
