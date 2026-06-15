@@ -39,6 +39,8 @@ go install github.com/bebanjo/esnap@latest
 go test ./...
 ```
 
+For integration testing against a real cluster or a local Docker environment, see [TESTING.md](TESTING.md).
+
 ## Usage
 
 ```text
@@ -155,12 +157,22 @@ If you want to set a custom prefix for your repository and an availability zone 
 ```yaml
 bucket: "this-bucket-"
 AZ: "eu-west-1"
+protocol: "https"
+server_side_encryption: true
 elasticsearch_url: "http://localhost:9200"
 elasticsearch_username: "elastic"
 elasticsearch_password: "changeme"
 ```
 
-Defaults are `my-bucket` for `bucket`, `eu-west-1` for `AZ`, `http://localhost:9200` for `elasticsearch_url`, and empty credentials for `elasticsearch_username` / `elasticsearch_password`.
+| Key | Default | Description |
+|-----|---------|-------------|
+| `bucket` | `my-bucket` | S3 bucket name prefix. The full bucket name is `<bucket><destination>`. |
+| `AZ` | `eu-west-1` | AWS region for the S3 bucket. |
+| `protocol` | `https` | Protocol for the S3 repository (`http` or `https`). Use `http` for local MinIO. |
+| `server_side_encryption` | `true` | Enable S3 server-side encryption on the repository. |
+| `elasticsearch_url` | `http://localhost:9200` | Comma-separated list of ES node URLs. |
+| `elasticsearch_username` | *(empty)* | Basic auth username. |
+| `elasticsearch_password` | *(empty)* | Basic auth password. |
 
 You can also configure Elasticsearch connectivity with environment variables:
 
