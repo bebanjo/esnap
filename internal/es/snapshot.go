@@ -65,9 +65,7 @@ func (c *Client) TakeSnapshot(repository, name string, indices []string) error {
 }
 
 func (c *Client) GetSnapshot(repository, name string) (*Snapshot, error) {
-	res, err := c.es.Snapshot.Get(repository, []string{name}, func(r *esapi.SnapshotGetRequest) {
-		r.IndexNames = boolPtr(true)
-	})
+	res, err := c.es.Snapshot.Get(repository, []string{name})
 	if err != nil {
 		return nil, err
 	}
@@ -85,9 +83,7 @@ func (c *Client) GetSnapshot(repository, name string) (*Snapshot, error) {
 }
 
 func (c *Client) GetSnapshots(repository string) ([]Snapshot, error) {
-	res, err := c.es.Snapshot.Get(repository, []string{"_all"}, func(r *esapi.SnapshotGetRequest) {
-		r.IndexNames = boolPtr(true)
-	})
+	res, err := c.es.Snapshot.Get(repository, []string{"_all"})
 	if err != nil {
 		return nil, err
 	}
