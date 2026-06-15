@@ -42,6 +42,8 @@ internal/es/         → ES client abstraction
 - `ES_URL` → `elasticsearch_url` (default: `http://localhost:9200`, comma-separated for multiple nodes)
 - `ES_USERNAME` → `elasticsearch_username`
 - `ES_PASSWORD` → `elasticsearch_password`
-- `bucket`, `AZ` in `$HOME/.esnap.yaml` (defaults: `my-bucket`, `eu-west-1`)
+- `bucket`, `AZ`, `protocol`, `server_side_encryption` in `$HOME/.esnap.yaml` (defaults: `my-bucket`, `eu-west-1`, `https`, `true`)
 
 **Testing**: `internal/es` tests use `httptest.NewServer` with a handler passed to `newTestClient`. The test server always adds `X-Elastic-Product: Elasticsearch` (required by the ES client). Basic auth is asserted with `assertBasicAuth`. `cmd/` tests only test pure helper functions (no mocked ES calls needed there).
+
+**ES 7.x / 8.x compatibility**: The go-elasticsearch/v8 client adds some query parameters that ES 7.x rejects (e.g. `index_names`, `wait_for_completion` on DELETE). Strip any such options from client calls; the ES 7.x defaults are correct. Use `EnableCompatibilityMode: true` in `NewClient`.
