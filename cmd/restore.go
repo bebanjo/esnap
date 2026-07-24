@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	es "github.com/bebanjo/elastigo/lib"
+	esclient "github.com/bebanjo/esnap/internal/es"
 	"github.com/spf13/cobra"
 )
 
-// restoreCmd represents the restore command
 var restoreCmd = &cobra.Command{
 	Use:   "restore",
 	Short: "Restore a snapshot",
@@ -21,68 +20,68 @@ new indices out of the ones from the snapshot, and make a swap of the alias, rem
 the old indices. If you use the fresh option, all indices and alias will be restored,
 without a swap.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var conn = es.NewConn()
-		var date = time.Now().Format("20060102150405")
+		client := mustClient()
+		date := time.Now().Format("20060102150405")
 
-		// Origin, destination and snapshot names are required
 		if *originRestore == "" || *destination == "" || *snapshot == "" {
 			fmt.Fprintf(os.Stderr, "origin, destination and snapshot are required\n")
 			os.Exit(1)
 		}
 
-		// fresh restore
 		if *fresh {
 			log.Println("applying fresh restore")
-			if err := freshRestore(conn, *originRestore, *destination, *snapshot, date); err != nil {
+			if err := freshRestore(client, *originRestore, *destination, *snapshot, date); err != nil {
 				fmt.Fprintf(os.Stderr, "fresh restore: error %v\n", err)
 				os.Exit(1)
 			}
 			os.Exit(0)
 		}
 
-		// restore without recreating aliases
-		if err := restore(conn, *originRestore, *destination, *snapshot, date); err != nil {
+		if err := restore(client, *originRestore, *destination, *snapshot, date); err != nil {
 			fmt.Fprintf(os.Stderr, "restore: error %v\n", err)
 			os.Exit(1)
 		}
 
-		// iterate aliases to do the swap
 		suffix := fmt.Sprintf("%s%s", date, *snapshot)
-		aliasesInfo := conn.GetCatAliasInfo(fmt.Sprintf("%s*", *destination))
+		aliasesInfo, err := client.GetAliases(fmt.Sprintf("%s*", *destination))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "restore: error fetching aliases %v\n", err)
+			os.Exit(1)
+		}
+
 		for _, aliasInfo := range aliasesInfo {
-			indicesInfo := conn.GetCatIndexInfo(fmt.Sprintf("%s*", aliasInfo.Name))
+			indicesInfo, err := client.GetIndices(fmt.Sprintf("%s*", aliasInfo.Name))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "restore: error fetching indices for alias %s %v\n", aliasInfo.Name, err)
+				os.Exit(1)
+			}
 			indicesNames := indicesNames(indicesInfo)
 			var indicesNamesToDelete []string
 			var disableDeletion bool
 
-			// iterate new created indices matching the alias pattern
 			for _, indexName := range indicesNames {
 				if indexName == aliasInfo.Index || !strings.HasSuffix(indexName, suffix) {
 					indicesNamesToDelete = append(indicesNamesToDelete, indexName)
 					continue
 				}
 
-				// add alias when new index is green
-				if err := addAliasPolling(conn, aliasInfo.Name, indexName); err != nil {
+				if err := addAliasPolling(client, aliasInfo.Name, indexName); err != nil {
 					fmt.Fprintf(os.Stderr, "add alias: error with alias %s and index %s %v\n", aliasInfo.Name, indexName, err)
 					disableDeletion = true
 					continue
 				}
 			}
 
-			// do not delete old indices if an alias to a new index failed to be created
 			if disableDeletion {
 				log.Println("restore finished without deletions, see errors above")
 				os.Exit(0)
 			}
 
-			// delete old indices
 			for _, indexNameToDelete := range indicesNamesToDelete {
-				if _, err := conn.DeleteIndex(indexNameToDelete); err != nil {
+				if err := client.DeleteIndex(indexNameToDelete); err != nil {
 					fmt.Fprintf(os.Stderr, "delete index: error with index %s %v\n", indexNameToDelete, err)
 				}
 			}
-
 		}
 	},
 }
@@ -98,36 +97,34 @@ func init() {
 		"Do a full, fresh restore of all data")
 }
 
-func freshRestore(conn *es.Conn, origin, destination, snapshotName, date string) error {
-	query := map[string]interface{}{
-		"ignore_unavailable":   true,
-		"include_global_state": false,
-		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
-		"rename_replacement":   fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
-	}
-
-	_, err := conn.RestoreSnapshot(origin, snapshotName, nil, query)
-	return err
+func freshRestore(client *esclient.Client, origin, destination, snapshotName, date string) error {
+	return client.RestoreSnapshot(origin, snapshotName, esclient.RestoreOptions{
+		IgnoreUnavailable:  true,
+		IncludeGlobalState: false,
+		IncludeAliases:     true,
+		RenamePattern:      fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
+		RenameReplacement:  fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
+	})
 }
 
-func restore(conn *es.Conn, origin, destination, snapshotName, date string) error {
-	query := map[string]interface{}{
-		"ignore_unavailable":   "true",
-		"include_global_state": false,
-		"include_aliases":      false,
-		"rename_pattern":       fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
-		"rename_replacement":   fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
-	}
-
-	_, err := conn.RestoreSnapshot(origin, snapshotName, nil, query)
-	return err
+func restore(client *esclient.Client, origin, destination, snapshotName, date string) error {
+	return client.RestoreSnapshot(origin, snapshotName, esclient.RestoreOptions{
+		IgnoreUnavailable:  true,
+		IncludeGlobalState: false,
+		IncludeAliases:     false,
+		RenamePattern:      fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
+		RenameReplacement:  fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
+	})
 }
 
-func addAliasPolling(conn *es.Conn, aliasName, indexName string) error {
-	var state string
+func addAliasPolling(client *esclient.Client, aliasName, indexName string) error {
+	state := ""
 	log.Printf("index %s is in status... ", indexName)
 	for state != "green" {
-		indexInfo := conn.GetCatIndexInfo(indexName)
+		indexInfo, err := client.GetIndices(indexName)
+		if err != nil {
+			return err
+		}
 		if len(indexInfo) < 1 {
 			break
 		}
@@ -136,14 +133,12 @@ func addAliasPolling(conn *es.Conn, aliasName, indexName string) error {
 		if state == "green" {
 			log.Printf("index %s is in status... %s ", indexName, state)
 			log.Println("Adding alias", aliasName, "to index", indexName)
-			if _, err := conn.AddAlias(indexName, aliasName); err != nil {
+			if err := client.AddAlias(indexName, aliasName); err != nil {
 				return err
 			}
-
 			return nil
 		}
 		log.Printf("index %s is in status... %s ", indexName, state)
-
 		time.Sleep(3 * time.Second)
 	}
 

@@ -1,46 +1,40 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"sync"
 
+	esclient "github.com/bebanjo/esnap/internal/es"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
 
-// RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "esnap",
 	Short: "Manage Elasticsearch snapshots and take a nap",
 	Long:  ``,
+	CompletionOptions: cobra.CompletionOptions{
+		DisableDefaultCmd: true,
+	},
 }
 
-// Command line flags
 var destination *string
 var createRepositoryTake *bool
 var originRestore, snapshot *string
 var allIndices, fresh, aliased *bool
 var age *int
 
-// Execute adds all child commands to the root command sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+var (
+	esClient     *esclient.Client
+	esClientErr  error
+	esClientOnce sync.Once
+)
+
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -51,36 +45,68 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports Persistent Flags, which, if defined here,
-	// will be global for your application.
-
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.esnap.yaml)")
 	destination = RootCmd.PersistentFlags().StringP("destination", "d", "", "Destination for the command action")
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" { // enable ability to specify config file via flag
+	log.SetOutput(os.Stdout)
+
+	viper.SetDefault("bucket", "my-bucket")
+	viper.SetDefault("AZ", "eu-west-1")
+	viper.SetDefault("protocol", "https")
+	viper.SetDefault("server_side_encryption", true)
+	viper.SetDefault("elasticsearch_url", "http://localhost:9200")
+	viper.SetDefault("elasticsearch_username", "")
+	viper.SetDefault("elasticsearch_password", "")
+
+	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
+	} else {
+		viper.SetConfigName(".esnap")
+		viper.AddConfigPath("$HOME")
 	}
 
-	viper.SetConfigName(".esnap") // name of config file (without extension)
-	viper.AddConfigPath("$HOME")  // adding home directory as first search path
-	viper.AutomaticEnv()          // read in environment variables that match
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
+	_ = viper.BindEnv("elasticsearch_url", "ES_URL")
+	_ = viper.BindEnv("elasticsearch_username", "ES_USERNAME")
+	_ = viper.BindEnv("elasticsearch_password", "ES_PASSWORD")
 
-	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
 
-	if viper.Get("Bucket") == nil {
-		viper.Set("Bucket", "my-bucket")
-	}
-	if viper.Get("AZ") == nil {
-		viper.Set("AZ", "eu-west-1")
-	}
+func configuredClient() (*esclient.Client, error) {
+	esClientOnce.Do(func() {
+		addresses := splitAndTrim(viper.GetString("elasticsearch_url"))
+		esClient, esClientErr = esclient.NewClient(esclient.Config{
+			Addresses: addresses,
+			Username:  viper.GetString("elasticsearch_username"),
+			Password:  viper.GetString("elasticsearch_password"),
+		})
+	})
+	return esClient, esClientErr
+}
 
-	// set logs to stdout
-	log.SetOutput(os.Stdout)
+func mustClient() *esclient.Client {
+	client, err := configuredClient()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "elasticsearch client: %v\n", err)
+		os.Exit(1)
+	}
+	return client
+}
+
+func splitAndTrim(value string) []string {
+	parts := strings.Split(value, ",")
+	addresses := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			addresses = append(addresses, part)
+		}
+	}
+	return addresses
 }
