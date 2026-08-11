@@ -42,7 +42,7 @@ without a swap.`,
 			os.Exit(1)
 		}
 
-		suffix := fmt.Sprintf("%s%s", date, *snapshot)
+		suffix := date
 		aliasesInfo, err := client.GetAliases(fmt.Sprintf("%s*", *destination))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "restore: error fetching aliases %v\n", err)
@@ -56,15 +56,10 @@ without a swap.`,
 				os.Exit(1)
 			}
 			indicesNames := indicesNames(indicesInfo)
-			var indicesNamesToDelete []string
+			indicesNamesToDelete, indicesNamesToAlias := partitionRestoredIndices(indicesNames, aliasInfo.Index, suffix)
 			var disableDeletion bool
 
-			for _, indexName := range indicesNames {
-				if indexName == aliasInfo.Index || !strings.HasSuffix(indexName, suffix) {
-					indicesNamesToDelete = append(indicesNamesToDelete, indexName)
-					continue
-				}
-
+			for _, indexName := range indicesNamesToAlias {
 				if err := addAliasPolling(client, aliasInfo.Name, indexName); err != nil {
 					fmt.Fprintf(os.Stderr, "add alias: error with alias %s and index %s %v\n", aliasInfo.Name, indexName, err)
 					disableDeletion = true
@@ -103,7 +98,7 @@ func freshRestore(client *esclient.Client, origin, destination, snapshotName, da
 		IncludeGlobalState: false,
 		IncludeAliases:     true,
 		RenamePattern:      fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
-		RenameReplacement:  fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
+		RenameReplacement:  fmt.Sprintf("%s_$1_%s", destination, date),
 	})
 }
 
@@ -113,8 +108,23 @@ func restore(client *esclient.Client, origin, destination, snapshotName, date st
 		IncludeGlobalState: false,
 		IncludeAliases:     false,
 		RenamePattern:      fmt.Sprintf("%s_(.+)_\\d+(_.*)?", origin),
-		RenameReplacement:  fmt.Sprintf("%s_$1_%s%s", destination, date, snapshotName),
+		RenameReplacement:  fmt.Sprintf("%s_$1_%s", destination, date),
 	})
+}
+
+// partitionRestoredIndices splits indicesNames into indices to delete (stale
+// indices from a previous restore, or the currently aliased index) and
+// indices to alias (freshly restored indices from this run, identified by
+// ending in suffix).
+func partitionRestoredIndices(indicesNames []string, currentAliasedIndex, suffix string) (toDelete, toAlias []string) {
+	for _, indexName := range indicesNames {
+		if indexName == currentAliasedIndex || !strings.HasSuffix(indexName, suffix) {
+			toDelete = append(toDelete, indexName)
+			continue
+		}
+		toAlias = append(toAlias, indexName)
+	}
+	return toDelete, toAlias
 }
 
 func addAliasPolling(client *esclient.Client, aliasName, indexName string) error {
